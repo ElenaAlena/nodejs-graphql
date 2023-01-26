@@ -41,12 +41,16 @@ const plugin: FastifyPluginAsyncJsonSchemaToTs = async (
       preValidation: ({ body }, reply, done) => {
         const { discount, monthPostsLimit } = body as any;
         if (
-          typeof discount !==
-            changeMemberTypeBodySchema?.properties?.discount?.type ||
-          typeof monthPostsLimit !==
-            changeMemberTypeBodySchema?.properties?.monthPostsLimit?.type
+          (discount &&
+            typeof discount !==
+              changeMemberTypeBodySchema?.properties?.discount?.type) ||
+          (monthPostsLimit &&
+            typeof monthPostsLimit !==
+              changeMemberTypeBodySchema?.properties?.monthPostsLimit?.type)
         )
-        throw fastify.httpErrors.badRequest();
+          throw fastify.httpErrors.badRequest("Param type is wrong");
+          
+        done(undefined);
       },
     },
     async function (request, reply): Promise<MemberTypeEntity> {

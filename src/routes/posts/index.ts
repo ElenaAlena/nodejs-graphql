@@ -35,14 +35,30 @@ const plugin: FastifyPluginAsyncJsonSchemaToTs = async (
       schema: {
         body: createPostBodySchema,
       },
+      preValidation: ({ body }, reply, done) => {
+        const { content, title, userId } = body as any;
+        if (
+          (content &&
+            typeof content !==
+              createPostBodySchema?.properties?.content?.type) ||
+          (title &&
+            typeof title !== createPostBodySchema?.properties?.title?.type) ||
+          (userId &&
+            typeof userId !== createPostBodySchema?.properties?.userId?.type)
+        )
+          throw fastify.httpErrors.badRequest();
+        done(undefined);
+      },
     },
     async function (request, reply): Promise<PostEntity> {
-      const newPost = await fastify.db.users.findOne({
+      const user = await fastify.db.users.findOne({
         key: "id",
         equals: (request as any).body.userId,
       });
-      if (!newPost) throw fastify.httpErrors.badRequest();
-      return fastify.db.posts.create((request as any).body);
+      if (!user) throw fastify.httpErrors.badRequest();
+      const post = await fastify.db.posts.create((request as any).body);
+      if (!post) throw fastify.httpErrors.HttpError;
+      return post;
     }
   );
 
@@ -54,7 +70,13 @@ const plugin: FastifyPluginAsyncJsonSchemaToTs = async (
       },
     },
     async function (request, reply): Promise<PostEntity> {
-      return {} as PostEntity;
+      try {
+        const postForDel = await fastify.db.posts.delete(request.params.id);
+        if (!postForDel) throw fastify.httpErrors.notFound();
+        return postForDel;
+      } catch {
+        throw fastify.httpErrors.badRequest();
+      }
     }
   );
 
@@ -65,9 +87,30 @@ const plugin: FastifyPluginAsyncJsonSchemaToTs = async (
         body: changePostBodySchema,
         params: idParamSchema,
       },
+      preValidation: ({ body }, reply, done) => {
+        const { content, title } = body as any;
+        if (
+          (content &&
+            typeof content !==
+              createPostBodySchema?.properties?.content?.type) ||
+          (title &&
+            typeof title !== createPostBodySchema?.properties?.title?.type)
+        )
+          throw fastify.httpErrors.badRequest();
+        done(undefined);
+      },
     },
     async function (request, reply): Promise<PostEntity> {
-      return {} as PostEntity;
+      try {
+        const post = await fastify.db.posts.change(
+          request.params.id,
+          request.body
+        );
+        if (!post) throw fastify.httpErrors.notFound();
+        return post;
+      } catch {
+        throw fastify.httpErrors.badRequest();
+      }
     }
   );
 };
