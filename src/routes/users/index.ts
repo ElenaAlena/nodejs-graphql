@@ -1,78 +1,92 @@
-import { FastifyPluginAsyncJsonSchemaToTs } from '@fastify/type-provider-json-schema-to-ts';
-import { idParamSchema } from '../../utils/reusedSchemas';
+import { FastifyPluginAsyncJsonSchemaToTs } from "@fastify/type-provider-json-schema-to-ts";
+import { idParamSchema } from "../../utils/reusedSchemas";
 import {
   createUserBodySchema,
   changeUserBodySchema,
   subscribeBodySchema,
-} from './schemas';
-import type { UserEntity } from '../../utils/DB/entities/DBUsers';
+} from "./schemas";
+import type { UserEntity } from "../../utils/DB/entities/DBUsers";
 
 const plugin: FastifyPluginAsyncJsonSchemaToTs = async (
   fastify
 ): Promise<void> => {
-  fastify.get('/', async function (request, reply): Promise<UserEntity[]> {});
+  fastify.get("/", async function (request, reply): Promise<UserEntity[]> {
+    return [];    
+  });
 
   fastify.get(
-    '/:id',
+    "/:id",
     {
       schema: {
         params: idParamSchema,
       },
     },
-    async function (request, reply): Promise<UserEntity> {}
+    async function (request, reply): Promise<UserEntity> {
+      return {} as UserEntity;
+    }
   );
 
   fastify.post(
-    '/',
+    "/",
     {
       schema: {
         body: createUserBodySchema,
       },
     },
-    async function (request, reply): Promise<UserEntity> {}
+    async function (request, reply): Promise<UserEntity> {
+      return {} as UserEntity;
+    }
   );
 
   fastify.delete(
-    '/:id',
+    "/:id",
     {
       schema: {
         params: idParamSchema,
       },
     },
-    async function (request, reply): Promise<UserEntity> {}
+    async function (request, reply): Promise<UserEntity> {
+      return {} as UserEntity;
+    }
   );
 
   fastify.post(
-    '/:id/subscribeTo',
+    "/:id/subscribeTo",
     {
       schema: {
         body: subscribeBodySchema,
         params: idParamSchema,
       },
     },
-    async function (request, reply): Promise<UserEntity> {}
+    async function (request, reply): Promise<UserEntity> {
+      return {} as UserEntity;
+    }
   );
 
   fastify.post(
-    '/:id/unsubscribeFrom',
+    "/:id/unsubscribeFrom",
     {
       schema: {
         body: subscribeBodySchema,
         params: idParamSchema,
       },
     },
-    async function (request, reply): Promise<UserEntity> {}
+    async function (request, reply): Promise<UserEntity> {
+      return {} as UserEntity;
+    }
   );
 
   fastify.patch(
-    '/:id',
+    "/:id",
     {
       schema: {
         body: changeUserBodySchema,
         params: idParamSchema,
       },
     },
-    async function (request, reply): Promise<UserEntity> {}
+    async function (request, reply): Promise<UserEntity> {
+      return {} as UserEntity;
+    }
   );
 };
 
