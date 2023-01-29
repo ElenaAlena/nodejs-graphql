@@ -1,5 +1,5 @@
 import { FastifyInstance } from "fastify";
-import { MemberTypeEntity } from "../DB/entities/DBMemberTypes";
+import { MemberTypeEntity } from "../../../utils/DB/entities/DBMemberTypes";
 
 export const getAllMemberTypes = async (
   fastify: FastifyInstance
@@ -19,4 +19,16 @@ export const getMemberType = async (
   });
   if (!memberType) throw fastify.httpErrors.notFound();
   return memberType;
+};
+
+export const updateMemberType = async (
+  id: string,
+  input: any,
+  fastify: FastifyInstance
+): Promise<MemberTypeEntity> => {
+  try {
+    return await fastify.db.memberTypes.change(id, input);
+  } catch (error) {
+    throw fastify.httpErrors.badRequest(error as string);
+  }
 };

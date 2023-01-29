@@ -8,10 +8,10 @@ import {
 import {
   getAllMemberTypes,
   getMemberType,
-} from "../../../../utils/Api/memberTypeApi";
-import { getAllPosts, getPost } from "../../../../utils/Api/postApi";
-import { getAllProfiles, getProfile } from "../../../../utils/Api/profilesApi";
-import { getAllUsers, getUser } from "../../../../utils/Api/userApi";
+} from "../../api/memberTypeApi";
+import { getAllPosts, getPost } from "../../api/postApi";
+import { getAllProfiles, getProfile } from "../../api/profilesApi";
+import { getAllUsers, getUser } from "../../api/userApi";
 import {
   GraphQLMemberType,
   GraphQLPostType,
@@ -25,12 +25,14 @@ export const getQueryType = async (
   new GraphQLObjectType({
     name: "Query",
     fields: {
+      
       memberTypes: {
         type: new GraphQLNonNull(
           new GraphQLList(new GraphQLNonNull(GraphQLMemberType))
         ),
         resolve:  async () => getAllMemberTypes(fastify),
       },
+
       memberType: {
         type: new GraphQLNonNull(GraphQLMemberType),
         args: { id: { type: new GraphQLNonNull(GraphQLID) } },
