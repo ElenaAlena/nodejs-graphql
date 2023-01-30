@@ -68,7 +68,7 @@ export const getQueryType = async (
 
       users: {
         type: new GraphQLList(new GraphQLNonNull(GraphQLUserType)),
-        resolve: async () => getAllUsers(fastify),
+        resolve: getAllUsers,
       },
 
       user: {

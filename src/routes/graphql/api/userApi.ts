@@ -1,15 +1,16 @@
 import { FastifyInstance } from "fastify";
 import { MemberTypeEntity } from "../../../utils/DB/entities/DBMemberTypes";
+import { PostEntity } from "../../../utils/DB/entities/DBPosts";
 import { ProfileEntity } from "../../../utils/DB/entities/DBProfiles";
 import { UserEntity } from "../../../utils/DB/entities/DBUsers";
-import { getMemberType } from "./memberTypeApi";
+import { ContextType } from "../schema/types/contextType";
 
 export const getAllUsers = async (
-  fastify: FastifyInstance
+  user: any,
+  args: unknown,
+  { dataLoader }: ContextType
 ): Promise<UserEntity[]> => {
-  const users = await fastify.db.users.findMany();
-  if (!users) throw fastify.httpErrors.notFound();
-  return users;
+  return dataLoader.getUserLoader.load('call');
 };
 
 export const getUser = async (
@@ -25,69 +26,72 @@ export const getUser = async (
 };
 
 export const getUserPosts = async (
-  ids: string[],
-  fastify: FastifyInstance
-): Promise<any> => {
-  const posts = await fastify.db.posts.findMany();
-  return ids.map((id) => posts.filter((post) => post.userId === id));
+  user: any,
+  args: unknown,
+  { dataLoader }: ContextType
+): Promise<PostEntity[]> => {
+  return dataLoader.getUserPostsLoader.load(user.id);
 };
 
 export const getUserProfiles = async (
-  ids: string[],
-  fastify: FastifyInstance
+  user: any,
+  args: unknown,
+  { dataLoader }: ContextType
 ): Promise<any> => {
-  const profiles = await fastify.db.profiles.findMany();
-  return ids.map((id) => profiles.filter((profile) => profile.userId === id));
+  return dataLoader.getUserProfilesLoader.load(user.id);
 };
 
 export const getUserProfile = async (
-  id: string,
-  fastify: FastifyInstance
+  user: any,
+  args: unknown,
+  { dataLoader }: ContextType
 ): Promise<ProfileEntity> => {
-  const profile = await fastify.db.profiles.findOne({
-    key: "id",
-    equals: id,
-  });
-  if (!profile) throw fastify.httpErrors.notFound();
-  return profile;
+  const [profile] = await dataLoader.getUserProfilesLoader.load(user.id);
+  return profile || null;
 };
 
 export const getUserMemberTypes = async (
-  ids: string[],
-  fastify: FastifyInstance
+  user: any,
+  args: unknown,
+  { dataLoader }: ContextType
 ): Promise<any> => {
-  const memberTypes = await fastify.db.memberTypes.findMany();
-  return ids.map((id) =>
-    memberTypes.filter((memberType) => memberType.id === id)
+  const [profile] = await dataLoader.getUserProfilesLoader.load(user.id);
+
+  return dataLoader.getUserMemberTypesLoader.load(
+    profile ? profile.memberTypeId : ""
   );
 };
 
 export const getUserMemberType = async (
-  id: string,
-  fastify: FastifyInstance
+  user: any,
+  args: unknown,
+  { dataLoader }: ContextType
 ): Promise<MemberTypeEntity> => {
-  return await getMemberType(id, fastify);
+  const [profile] = await dataLoader.getUserProfilesLoader.load(user.id);
+  const [memberType] = await dataLoader.getUserMemberTypesLoader.load(
+    profile?.memberTypeId || ""
+  );
+  return memberType || null;
 };
 
 export const getUserSubscribedTo = async (
-  id: string,
-  fastify: FastifyInstance
-): Promise<any> => {
-  const users = await getAllUsers(fastify);
+  user: any,
+  args: unknown,
+  { dataLoader }: ContextType
+): Promise<UserEntity[]> => {
+  const users = await dataLoader.getUserLoader.load("call");
 
-  return users.filter((user) => user.subscribedToUserIds.includes(id));
+  return users.filter((item) => item.subscribedToUserIds.includes(user.id));
 };
 
 export const getSubscribedToUser = async (
-  id: string,
-  fastify: FastifyInstance
-): Promise<any> => {
-  const users = await getAllUsers(fastify);
-  const current = await getUser(id, fastify);
+  user: any,
+  args: unknown,
+  { dataLoader }: ContextType
+): Promise<UserEntity[]> => {
+  const users = await dataLoader.getUserLoader.load("call");
 
-  return users.filter((someUser) =>
-    current.subscribedToUserIds.includes(someUser.id)
-  );
+  return users.filter((item) => user.subscribedToUserIds.includes(item.id));
 };
 
 export const addUser = async (

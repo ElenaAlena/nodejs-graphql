@@ -1,6 +1,19 @@
-import { GraphQLInt, GraphQLObjectType, GraphQLString } from "graphql";
+import {
+  GraphQLInt,
+  GraphQLObjectType,
+  GraphQLString,
+  GraphQLID,
+} from "graphql";
 import { GraphQLList, GraphQLNonNull } from "graphql/type";
-import { getUserMemberTypes, getUserPosts, getUserProfiles } from "../../api/userApi";
+import {
+  getSubscribedToUser,
+  getUserMemberType,
+  getUserMemberTypes,
+  getUserPosts,
+  getUserProfile,
+  getUserProfiles,
+  getUserSubscribedTo,
+} from "../../api/userApi";
 
 const GraphQLMemberType = new GraphQLObjectType({
   name: "Member",
@@ -14,7 +27,7 @@ const GraphQLMemberType = new GraphQLObjectType({
 const GraphQLPostType = new GraphQLObjectType({
   name: "Post",
   fields: () => ({
-    id: { type: GraphQLString },
+    id: { type: GraphQLID },
     userId: { type: new GraphQLNonNull(GraphQLString) },
     title: { type: new GraphQLNonNull(GraphQLString) },
     content: { type: new GraphQLNonNull(GraphQLString) },
@@ -49,23 +62,29 @@ const GraphQLUserType: GraphQLObjectType = new GraphQLObjectType({
       ),
     },
     posts: {
-      type: new GraphQLNonNull(new GraphQLList(new GraphQLNonNull(GraphQLPostType))),
+      type: new GraphQLNonNull(
+        new GraphQLList(new GraphQLNonNull(GraphQLPostType))
+      ),
       resolve: getUserPosts,
     },
     profiles: {
-      type: new GraphQLNonNull(new GraphQLList(new GraphQLNonNull(GraphQLProfileType))),
+      type: new GraphQLNonNull(
+        new GraphQLList(new GraphQLNonNull(GraphQLProfileType))
+      ),
       resolve: getUserProfiles,
     },
-    memberTypes: {
-      type: new GraphQLNonNull(new GraphQLList(new GraphQLNonNull(GraphQLMemberType))),
-      resolve: getUserMemberTypes,
-    },
-    /*profile: {
-      type: new GraphQLNonNull(GraphQLProfileType),
+    profile: {
+      type: GraphQLProfileType,
       resolve: getUserProfile,
     },
+    memberTypes: {
+      type: new GraphQLNonNull(
+        new GraphQLList(new GraphQLNonNull(GraphQLMemberType))
+      ),
+      resolve: getUserMemberTypes,
+    },    
     memberType: {
-      type: new GraphQLNonNull(GraphQLMemberType),
+      type: GraphQLMemberType,
       resolve: getUserMemberType,
     },
     userSubscribedTo: {
@@ -75,7 +94,7 @@ const GraphQLUserType: GraphQLObjectType = new GraphQLObjectType({
     subscribedToUser: {
       type: new GraphQLNonNull(new GraphQLList(new GraphQLNonNull(GraphQLUserType))),
       resolve: getSubscribedToUser,
-    },*/
+    },
   }),
 });
 
