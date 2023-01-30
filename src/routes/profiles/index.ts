@@ -22,7 +22,7 @@ const plugin: FastifyPluginAsyncJsonSchemaToTs = async (
     async function (request, reply): Promise<ProfileEntity> {
       const profile = await fastify.db.profiles.findOne({
         key: "id",
-        equals: request.params.id,
+        equals: (request.params as any).id,
       });
       if (!profile) throw fastify.httpErrors.notFound();
       return profile;
@@ -75,19 +75,19 @@ const plugin: FastifyPluginAsyncJsonSchemaToTs = async (
     async function ({ body }, reply): Promise<ProfileEntity> {
       const user = await fastify.db.users.findOne({
         key: "id",
-        equals: body.userId,
+        equals: (body as any).userId,
       });
       const memberType = await fastify.db.memberTypes.findOne({
         key: "id",
-        equals: body.memberTypeId,
+        equals: (body as any).memberTypeId,
       });
       const profile = await fastify.db.profiles.findOne({
         key: "userId",
-        equals: body.userId,
+        equals: (body as any).userId,
       });
       if (!memberType || !user || profile)
         throw fastify.httpErrors.badRequest();
-      const newProfile = await fastify.db.profiles.create(body);
+      const newProfile = await fastify.db.profiles.create(body as any);
       if (!newProfile) throw fastify.httpErrors.badRequest();
       return newProfile;
     }
@@ -102,7 +102,7 @@ const plugin: FastifyPluginAsyncJsonSchemaToTs = async (
     },
     async function (request, reply): Promise<ProfileEntity> {
       try {
-        const profile = await fastify.db.profiles.delete(request.params.id);
+        const profile = await fastify.db.profiles.delete((request.params as any).id);
         if (!profile) throw fastify.httpErrors.notFound();
         return profile;
       } catch {
@@ -150,8 +150,8 @@ const plugin: FastifyPluginAsyncJsonSchemaToTs = async (
     async function (request, reply): Promise<ProfileEntity> {
       try {
         const profile = await fastify.db.profiles.change(
-          request.params.id,
-          request.body
+          (request.params as any).id,
+          (request as any).body
         );
         if (!profile) throw fastify.httpErrors.notFound();
         return profile;

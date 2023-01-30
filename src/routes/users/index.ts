@@ -26,7 +26,7 @@ const plugin: FastifyPluginAsyncJsonSchemaToTs = async (
     async function (request, reply): Promise<UserEntity> {
       const user = await fastify.db.users.findOne({
         key: "id",
-        equals: request.params.id,
+        equals: (request.params as any).id,
       });
       if (!user) throw fastify.httpErrors.notFound();
       return user;
@@ -56,7 +56,7 @@ const plugin: FastifyPluginAsyncJsonSchemaToTs = async (
       },
     },
     async function ({ body }, reply): Promise<UserEntity> {
-      const newUser = await fastify.db.users.create(body);
+      const newUser = await fastify.db.users.create(body as any);
       if (!newUser) throw fastify.httpErrors.notFound();
       return newUser;
     }
@@ -71,7 +71,7 @@ const plugin: FastifyPluginAsyncJsonSchemaToTs = async (
     },
     async function (request, reply): Promise<UserEntity> {
       try {
-        const { id } = request.params;
+        const { id } = request.params as any;
         const userToDel = await fastify.db.users.delete(id);
         if (!userToDel) throw fastify.httpErrors.notFound();
 
@@ -130,12 +130,12 @@ const plugin: FastifyPluginAsyncJsonSchemaToTs = async (
     async function ({ params, body }, reply): Promise<UserEntity> {
       const user = await fastify.db.users.findOne({
         key: "id",
-        equals: body.userId,
+        equals: (body as any).userId,
       });
 
       const subscriber = await fastify.db.users.findOne({
         key: "id",
-        equals: params.id,
+        equals: (params as any).id,
       });
 
       if (
@@ -176,11 +176,11 @@ const plugin: FastifyPluginAsyncJsonSchemaToTs = async (
     async function ({ params, body }, reply): Promise<UserEntity> {
       const user = await fastify.db.users.findOne({
         key: "id",
-        equals: body.userId,
+        equals: (body as any).userId,
       });
       const subscriber = await fastify.db.users.findOne({
         key: "id",
-        equals: params.id,
+        equals: (params as any).id,
       });
       if (
         !user ||
@@ -190,7 +190,7 @@ const plugin: FastifyPluginAsyncJsonSchemaToTs = async (
         throw fastify.httpErrors.badRequest();
 
       const subscribers = user.subscribedToUserIds.filter(
-        (id) => id !== params.id
+        (id) => id !== (params as any).id
       );
 
       try {
@@ -231,7 +231,10 @@ const plugin: FastifyPluginAsyncJsonSchemaToTs = async (
     },
     async function ({ params, body }, reply): Promise<UserEntity> {
       try {
-        const user = await fastify.db.users.change(params.id, body);
+        const user = await fastify.db.users.change(
+          (params as any).id,
+          body as any
+        );
         if (!user) throw fastify.httpErrors.notFound();
         return user;
       } catch {

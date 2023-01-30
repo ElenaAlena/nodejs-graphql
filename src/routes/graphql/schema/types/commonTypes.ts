@@ -1,6 +1,6 @@
 import { GraphQLInt, GraphQLObjectType, GraphQLString } from "graphql";
 import { GraphQLList, GraphQLNonNull } from "graphql/type";
-import { getSubscribedToUser, getUserMemberType, getUserMemberTypes, getUserPosts, getUserProfile, getUserProfiles, getUserSubscribedTo } from "../../api/userApi";
+import { getUserMemberTypes, getUserPosts, getUserProfiles } from "../../api/userApi";
 
 const GraphQLMemberType = new GraphQLObjectType({
   name: "Member",

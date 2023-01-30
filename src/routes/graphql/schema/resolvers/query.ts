@@ -4,6 +4,7 @@ import {
   GraphQLNonNull,
   GraphQLList,
   GraphQLID,
+  GraphQLString,
 } from "graphql";
 import {
   getAllMemberTypes,
@@ -35,7 +36,7 @@ export const getQueryType = async (
 
       memberType: {
         type: new GraphQLNonNull(GraphQLMemberType),
-        args: { id: { type: new GraphQLNonNull(GraphQLID) } },
+        args: { id: { type: new GraphQLNonNull(GraphQLString) } },
         resolve: async (parent, { id }) => getMemberType(id, fastify),
       },
 

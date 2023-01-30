@@ -71,7 +71,9 @@ const plugin: FastifyPluginAsyncJsonSchemaToTs = async (
     },
     async function (request, reply): Promise<PostEntity> {
       try {
-        const postForDel = await fastify.db.posts.delete(request.params.id);
+        const postForDel = await fastify.db.posts.delete(
+          (request.params as any).id
+        );
         if (!postForDel) throw fastify.httpErrors.notFound();
         return postForDel;
       } catch {
@@ -103,8 +105,8 @@ const plugin: FastifyPluginAsyncJsonSchemaToTs = async (
     async function (request, reply): Promise<PostEntity> {
       try {
         const post = await fastify.db.posts.change(
-          request.params.id,
-          request.body
+          (request.params as any).id,
+          (request as any).body
         );
         if (!post) throw fastify.httpErrors.notFound();
         return post;

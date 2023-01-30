@@ -2,6 +2,7 @@ import { FastifyInstance } from "fastify";
 import { MemberTypeEntity } from "../../../utils/DB/entities/DBMemberTypes";
 import { ProfileEntity } from "../../../utils/DB/entities/DBProfiles";
 import { UserEntity } from "../../../utils/DB/entities/DBUsers";
+import { getMemberType } from "./memberTypeApi";
 
 export const getAllUsers = async (
   fastify: FastifyInstance
@@ -65,12 +66,7 @@ export const getUserMemberType = async (
   id: string,
   fastify: FastifyInstance
 ): Promise<MemberTypeEntity> => {
-  const memberType = await fastify.db.memberTypes.findOne({
-    key: "id",
-    equals: id,
-  });
-  if (!memberType) throw fastify.httpErrors.notFound();
-  return memberType;
+  return await getMemberType(id, fastify);
 };
 
 export const getUserSubscribedTo = async (
@@ -135,11 +131,15 @@ export const subscribeTo = async (
   if (!user || !subscriber || user.subscribedToUserIds.includes(subscriber.id))
     throw fastify.httpErrors.badRequest();
 
+  const subscribedToUserIdsAray: string[] = [
+    ...user.subscribedToUserIds,
+    subscriber.id,
+  ];
   try {
     await fastify.db.users.change(user.id, {
-      subscribedToUserIds: [...user.subscribedToUserIds, subscriber.id],
+      subscribedToUserIds: subscribedToUserIdsAray,
     });
-    return user;
+    return { ...user, subscribedToUserIds: subscribedToUserIdsAray };
   } catch {
     throw fastify.httpErrors.badRequest();
   }
@@ -152,11 +152,11 @@ export const unsubscribeFrom = async (
 ): Promise<UserEntity> => {
   const user = await fastify.db.users.findOne({
     key: "id",
-    equals: unsubscribeFromUserId,
+    equals: id,
   });
   const subscriber = await fastify.db.users.findOne({
     key: "id",
-    equals: id,
+    equals: unsubscribeFromUserId,
   });
   if (!user || !subscriber || !user.subscribedToUserIds.includes(subscriber.id))
     throw fastify.httpErrors.badRequest();
@@ -168,7 +168,7 @@ export const unsubscribeFrom = async (
       subscribedToUserIds: subscribers,
     });
 
-    return user;
+    return { ...user, subscribedToUserIds: subscribers };
   } catch {
     throw fastify.httpErrors.badRequest();
   }
